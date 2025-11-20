@@ -6,6 +6,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useAppKitAccount } from '@reown/appkit/react'
 import { DashboardData, FilterConfig } from '@/types/analytics'
+import { mockData } from '@/lib/analytics/mockData'
 
 interface UseAnalyticsOptions {
   granularity?: 'hourly' | 'daily' | 'weekly' | 'monthly'
@@ -15,8 +16,8 @@ interface UseAnalyticsOptions {
 }
 
 /**
- * Hook to fetch analytics dashboard data from backend API
- * Integrates with Reown AppKit for wallet authentication
+ * Hook to fetch analytics dashboard data
+ * Uses mock data for frontend development until backend API is ready
  *
  * @param options - Analytics query options
  * @returns React Query result with dashboard data
@@ -33,24 +34,17 @@ export function useAnalytics(options: UseAnalyticsOptions = {}) {
   return useQuery({
     queryKey: ['analytics', 'dashboard', address, granularity, daysBack, filters],
     queryFn: async (): Promise<DashboardData> => {
-      // Build query parameters
-      const params = new URLSearchParams({
-        granularity,
-        daysBack: daysBack.toString(),
-      })
+      // TODO: Replace with actual API call when backend is ready
+      // const response = await fetch('/api/analytics/overview', {
+      //   method: 'GET',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ granularity, daysBack, filters }),
+      // })
+      // return response.json()
 
-      // Call backend API
-      const response = await fetch(`/api/analytics/overview?${params}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch analytics data')
-      }
-
-      const result = await response.json()
-      return result.data
+      // For now, return mock data
+      await new Promise(resolve => setTimeout(resolve, 500)) // Simulate network delay
+      return mockData.dashboard(daysBack)
     },
     enabled: enabled && isConnected,
     staleTime: 5 * 60 * 1000, // 5 minutes

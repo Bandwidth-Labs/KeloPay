@@ -1,5 +1,5 @@
-// useRoleAccess hook - Role-based access control with Reown AppKit
-// Determines user permissions based on connected wallet address
+// useRoleAccess hook - Role-based access control
+// Integrates with Reown AppKit for wallet authentication
 
 'use client'
 
@@ -7,56 +7,65 @@ import { useMemo } from 'react'
 import { useAppKitAccount } from '@reown/appkit/react'
 import { UserRole } from '@/types/analytics'
 
+// TODO: Replace with actual user data from backend when ready
+// For now, we'll determine role based on wallet address
+// In production, this should fetch from your user management API
+
 interface RolePermissions {
   viewAllTransactions: boolean
   viewAllUsers: boolean
   viewAnalytics: boolean
-  viewReports: boolean
+  viewMerchantData: boolean
+  exportReports: boolean
+  configureAlerts: boolean
   manageUsers: boolean
-  manageMerchants: boolean
-  exportData: boolean
-  viewSettings: boolean
+  viewRealtime: boolean
 }
 
 /**
- * Hook for role-based access control using Reown AppKit
+ * Hook to manage role-based access control
+ * Uses wallet address from Reown AppKit to determine user role
  *
- * Determines user role based on connected wallet address
- * In production, this would be fetched from the backend API
- * For now, assigns roles based on wallet address pattern (demo)
- *
- * @param allowedRoles - Optional list of roles that have access
- * @returns Role access information and permissions
+ * @param allowedRoles - Array of roles that have access to the feature
+ * @returns Object with access info and permissions
  */
 export function useRoleAccess(allowedRoles?: UserRole[]) {
-  const { address, isConnected } = useAppKitAccount() // Reown AppKit integration
+  const { address, isConnected } = useAppKitAccount()
 
-  // Determine user role based on wallet address
-  // TODO: In production, fetch this from backend API via /api/user/role
+  // TODO: Replace with actual role fetching from backend
+  // This is a mock implementation for frontend development
   const role = useMemo((): UserRole => {
     if (!address) return UserRole.USER
 
-    // Demo: Assign roles based on address prefix
-    // In production, this comes from database
+    // For demo purposes, assign roles based on address
+    // In production, fetch this from your backend API
     const addressLower = address.toLowerCase()
 
+    // Demo: First few characters determine role
     if (addressLower.startsWith('0x00') || addressLower.startsWith('0x11')) {
       return UserRole.ADMIN
     }
-    if (addressLower.startsWith('0x22') || addressLower.startsWith('0x33')) {
+    if (addressLower.startsWith('0x22')) {
       return UserRole.OPERATIONS
     }
-    if (addressLower.startsWith('0x44') || addressLower.startsWith('0x55')) {
+    if (addressLower.startsWith('0x33')) {
       return UserRole.GROWTH
     }
-    if (addressLower.startsWith('0x66') || addressLower.startsWith('0x77')) {
+    if (addressLower.startsWith('0x44')) {
       return UserRole.MERCHANT
     }
 
     return UserRole.USER
   }, [address])
 
-  // Calculate permissions based on role
+  // Determine if user has access based on allowed roles
+  const hasAccess = useMemo(() => {
+    if (!isConnected) return false
+    if (!allowedRoles || allowedRoles.length === 0) return true
+    return allowedRoles.includes(role)
+  }, [isConnected, role, allowedRoles])
+
+  // Define permissions based on role
   const permissions = useMemo((): RolePermissions => {
     const isAdmin = role === UserRole.ADMIN
     const isOperations = role === UserRole.OPERATIONS
@@ -67,26 +76,47 @@ export function useRoleAccess(allowedRoles?: UserRole[]) {
       viewAllTransactions: isAdmin || isOperations || isGrowth,
       viewAllUsers: isAdmin || isOperations || isGrowth,
       viewAnalytics: isAdmin || isOperations || isGrowth,
-      viewReports: isAdmin || isOperations || isGrowth || isMerchant,
-      manageUsers: isAdmin || isOperations,
-      manageMerchants: isAdmin || isOperations,
-      exportData: isAdmin || isOperations || isGrowth || isMerchant,
-      viewSettings: true, // All users can view their own settings
+      viewMerchantData: isAdmin || isOperations || isMerchant,
+      exportReports: isAdmin || isOperations || isGrowth || isMerchant,
+      configureAlerts: isAdmin || isOperations,
+      manageUsers: isAdmin,
+      viewRealtime: isAdmin || isOperations,
     }
   }, [role])
 
-  // Check if user has access based on allowed roles
-  const hasAccess = useMemo(() => {
-    if (!allowedRoles || allowedRoles.length === 0) return true
-    if (!isConnected) return false
-    return allowedRoles.includes(role)
-  }, [allowedRoles, role, isConnected])
-
   return {
+    hasAccess,
     role,
     permissions,
-    hasAccess,
     isConnected,
     address,
   }
+}
+
+/**
+ * Get role display name
+ */
+export function getRoleDisplayName(role: UserRole): string {
+  const names: Record<UserRole, string> = {
+    [UserRole.ADMIN]: 'Administrator',
+    [UserRole.OPERATIONS]: 'Operations',
+    [UserRole.GROWTH]: 'Growth',
+    [UserRole.MERCHANT]: 'Merchant',
+    [UserRole.USER]: 'User',
+  }
+  return names[role]
+}
+
+/**
+ * Get role badge color for UI
+ */
+export function getRoleBadgeColor(role: UserRole): string {
+  const colors: Record<UserRole, string> = {
+    [UserRole.ADMIN]: 'bg-purple-500',
+    [UserRole.OPERATIONS]: 'bg-blue-500',
+    [UserRole.GROWTH]: 'bg-green-500',
+    [UserRole.MERCHANT]: 'bg-yellow-500',
+    [UserRole.USER]: 'bg-gray-500',
+  }
+  return colors[role]
 }
