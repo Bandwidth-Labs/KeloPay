@@ -133,6 +133,12 @@ npm start
 - **POST** `/api/user` - Create or update user
   - Body: `{ walletAddress, email?, socialProvider? }`
 
+### Webhooks
+
+- **POST** `/api/webhooks/alchemy` - Receive blockchain transaction events
+  - Headers: `x-alchemy-signature` (for verification)
+  - Automatically processes and stores transactions from Alchemy
+
 ---
 
 ## Database Commands
@@ -150,6 +156,51 @@ npm run db:seed
 # Open Prisma Studio (database GUI)
 npm run db:studio
 ```
+
+---
+
+## Blockchain Transaction Indexing
+
+### Setting Up Alchemy Webhooks
+
+KeloPay uses Alchemy to monitor blockchain transactions in real-time.
+
+#### 1. Create Alchemy Account
+- Go to [alchemy.com](https://www.alchemy.com)
+- Create a free account
+- Create apps for each network (Ethereum, Base, Arbitrum, etc.)
+
+#### 2. Get API Key
+- Copy your Alchemy API key
+- Add to `.env`:
+  ```env
+  NEXT_PUBLIC_ALCHEMY_API_KEY="your-api-key-here"
+  ```
+
+#### 3. Configure Webhooks
+For each network:
+1. Go to Alchemy Dashboard → Notify → Create Webhook
+2. Select **"Address Activity"** webhook type
+3. Add wallet addresses to monitor
+4. Set webhook URL: `https://yourdomain.com/api/webhooks/alchemy`
+5. Copy the signing key → Add to `.env`:
+   ```env
+   ALCHEMY_WEBHOOK_SECRET="your-signing-key"
+   ```
+
+#### 4. Test Webhook (Local Development)
+Use ngrok to expose local server:
+```bash
+npx ngrok http 3000
+# Use the ngrok URL for webhook: https://xxxxx.ngrok.io/api/webhooks/alchemy
+```
+
+#### Supported Networks
+- Ethereum (Mainnet + Sepolia)
+- Base (Mainnet + Sepolia)
+- Arbitrum (Mainnet + Sepolia)
+
+**Note**: Lisk and BSC require custom RPC setup (not currently supported by Alchemy SDK)
 
 ---
 
