@@ -2,8 +2,8 @@
 pragma solidity ^0.8.27;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
@@ -91,7 +91,7 @@ contract KeloPay is Ownable, ReentrancyGuard, Pausable {
      * @param _treasury Address of the treasury to collect fees
      * @param _platformFeeBasisPoints Initial platform fee in basis points
      */
-    constructor(address _treasury, uint256 _platformFeeBasisPoints) {
+    constructor(address _treasury, uint256 _platformFeeBasisPoints) Ownable(_treasury) {
         require(_treasury != address(0), "Invalid treasury address");
         require(_platformFeeBasisPoints <= MAX_FEE_BASIS_POINTS, "Fee too high");
 
