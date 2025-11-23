@@ -1,104 +1,86 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Foundry
 
-## Getting Started
+**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
 
-First, run the development server:
+Foundry consists of:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
+- **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
+- **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
+- **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+
+## Documentation
+
+https://book.getfoundry.sh/
+
+## Usage
+
+### Build
+
+```shell
+$ forge build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Test
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-# KeloPay
-
-## Smart Contract Development
-
-### Compiling Contracts
-
-```bash
-npx hardhat compile
+```shell
+$ forge test
 ```
 
-### Deploying to Testnets
+### Format
 
-KeloPay smart contracts can be deployed to multiple testnets. Make sure you have configured the following in your `.env` file:
-
-- `PRIVATE_KEY` - Private key for deployment (use testnet wallet only!)
-- `SEPOLIA_RPC_URL` - Ethereum Sepolia RPC URL
-- `BASE_SEPOLIA_RPC_URL` - Base Sepolia RPC URL
-- `ARBITRUM_SEPOLIA_RPC_URL` - Arbitrum Sepolia RPC URL
-- `LISK_SEPOLIA_RPC_URL` - Lisk Sepolia RPC URL
-- `BSC_TESTNET_RPC_URL` - BSC Testnet RPC URL
-
-#### Deploy KeloPay Main Contract
-
-```bash
-# Replace YOUR_TREASURY_ADDRESS with actual treasury address
-npx hardhat ignition deploy ignition/modules/KeloPay.ts --network sepolia --parameters '{"treasuryAddress":"YOUR_TREASURY_ADDRESS","platformFeeBasisPoints":100}'
+```shell
+$ forge fmt
 ```
 
-#### Deploy Withdrawal Contract
+### Gas Snapshots
 
-```bash
-# Replace YOUR_ADMIN_ADDRESS with actual admin address
-npx hardhat ignition deploy ignition/modules/KeloPayWithdrawal.ts --network sepolia --parameters '{"adminAddress":"YOUR_ADMIN_ADDRESS"}'
+```shell
+$ forge snapshot
 ```
 
-#### Deploy Router Contract
+### Anvil
 
-```bash
-npx hardhat ignition deploy ignition/modules/KeloPayRouter.ts --network sepolia --parameters '{"adminAddress":"YOUR_ADMIN_ADDRESS"}'
+```shell
+$ anvil
 ```
 
-#### Deploy Conversion Contract
+### Deploy
 
-```bash
-npx hardhat ignition deploy ignition/modules/KeloPayConversion.ts --network sepolia --parameters '{"adminAddress":"YOUR_ADMIN_ADDRESS"}'
+Deploy KeloPay contracts to testnets:
+
+```shell
+# Deploy to Sepolia
+forge script script/DeployKeloPay.s.sol:DeployKeloPay --rpc-url $SEPOLIA_RPC_URL --broadcast --verify
+
+# Deploy to Base Sepolia
+forge script script/DeployKeloPay.s.sol:DeployKeloPay --rpc-url $BASE_SEPOLIA_RPC_URL --broadcast --verify
+
+# Deploy to Arbitrum Sepolia
+forge script script/DeployKeloPay.s.sol:DeployKeloPay --rpc-url $ARBITRUM_SEPOLIA_RPC_URL --broadcast --verify
+
+# Deploy to Lisk Sepolia
+forge script script/DeployKeloPay.s.sol:DeployKeloPay --rpc-url $LISK_SEPOLIA_RPC_URL --broadcast --verify
+
+# Deploy to BSC Testnet
+forge script script/DeployKeloPay.s.sol:DeployKeloPay --rpc-url $BSC_TESTNET_RPC_URL --broadcast --verify
 ```
 
-### Verifying Contracts
+Make sure you have the following environment variables set in your `.env` file:
+- `PRIVATE_KEY` - Your deployer private key (testnet only!)
+- `SEPOLIA_RPC_URL`, `BASE_SEPOLIA_RPC_URL`, etc. - RPC URLs for each network
+- `ETHERSCAN_API_KEY`, `BASESCAN_API_KEY`, etc. - API keys for contract verification
 
-After deployment, verify contracts on block explorers:
+### Cast
 
-```bash
-npx hardhat verify --network sepolia DEPLOYED_CONTRACT_ADDRESS "CONSTRUCTOR_ARG_1" "CONSTRUCTOR_ARG_2"
+```shell
+$ cast <subcommand>
 ```
 
-### Testing Contracts
+### Help
 
-```bash
-# Run all tests
-npx hardhat test
-
-# Run with gas reporting
-REPORT_GAS=true npx hardhat test
-
-# Run specific test file
-npx hardhat test test/KeloPay.test.ts
+```shell
+$ forge --help
+$ anvil --help
+$ cast --help
 ```
